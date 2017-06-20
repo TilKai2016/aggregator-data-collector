@@ -1,0 +1,39 @@
+buildscript {
+    ext {
+        springBootVersion = "${springBootVersion}"
+    }
+    repositories {
+        maven {
+            url "${maven_url}"
+        }
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath("io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE")
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
+
+jar {
+    baseName = 'dataAcquisition'
+    version = '0.0.1-SNAPSHOT'
+}
+
+repositories {
+    maven {
+        url "${maven_url}"
+    }
+}
+
+dependencies {
+    compile("org.springframework.boot:spring-boot-starter-web")
+    compile("org.thymeleaf:thymeleaf-spring4")
+    compile("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect")
+    compile('mysql:mysql-connector-java:5.1.38')
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.9'
+}

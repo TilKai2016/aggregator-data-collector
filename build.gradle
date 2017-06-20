@@ -1,0 +1,57 @@
+buildscript {
+    ext {
+        IDE_GRADLE = "$rootDir/gradle/ide.gradle"
+        JAVA_GRADLE = "$rootDir/gradle/java.gradle"
+        COMMON_GRADLE = "$rootDir/gradle/common.gradle"
+    }
+
+    repositories {
+        maven {
+            url "${maven_url}"
+        } 
+    }
+
+    dependencies {
+       classpath "${dependencies_classpath}"
+    }
+}
+
+allprojects {
+    apply plugin : 'com.jfrog.artifactory'
+    apply from : IDE_GRADLE
+    apply from: JAVA_GRADLE
+
+    group = 'com.tsingcon.aces'
+    version = '${currentVersion}'
+
+    repositories {
+        maven {
+            url '${maven_url}'
+        }
+    }
+}
+
+artifactoryPublish.skip = true
+
+artifactory {
+    contextUrl = "${artifactory_contextUrl}"
+    publish {
+        repository {
+            repoKey = currentVersion.endsWith('SNAPSHOT') ? 'libs-snapshot-local' : 'libs-release-local'
+            maven = true
+            username = "${artifactory_user}"
+            password = "${artifactory_password}"
+        }
+        defaults {
+            publishArtifacts = true
+            publishPom = true
+            publishIvy = false
+        }
+    }
+    resolve {
+        repository {
+            repoKey = 'libs-release'
+            maven = true
+        }
+    }
+}
