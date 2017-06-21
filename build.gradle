@@ -3,30 +3,31 @@ buildscript {
         IDE_GRADLE = "$rootDir/gradle/ide.gradle"
         JAVA_GRADLE = "$rootDir/gradle/java.gradle"
         COMMON_GRADLE = "$rootDir/gradle/common.gradle"
-    }
 
+        springBootVersion = '1.4.3.RELEASE'
+        springShiroVersion = '1.4.0-RC2'
+        tsingyunBootVersion = '1.0.9'
+    }
     repositories {
         maven {
-            url "${maven_url}"
-        } 
+            url 'http://maven.solarule.cn/artifactory/libs-release'
+        }
     }
-
     dependencies {
-       classpath "${dependencies_classpath}"
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4+"
     }
 }
 
 allprojects {
-    apply plugin : 'com.jfrog.artifactory'
-    apply from : IDE_GRADLE
-    apply from: JAVA_GRADLE
+    apply plugin: "com.jfrog.artifactory"
+    apply from: IDE_GRADLE
 
-    group = 'com.tsingcon.aces'
-    version = '${currentVersion}'
+    group = 'com.tsingyun.hpvm'
+    version = currentVersion
 
     repositories {
         maven {
-            url '${maven_url}'
+            url 'http://maven.solarule.cn/artifactory/libs-release'
         }
     }
 }

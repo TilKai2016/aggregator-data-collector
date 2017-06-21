@@ -1,10 +1,11 @@
 buildscript {
     ext {
-        springBootVersion = "${springBootVersion}"
+        springBootVersion = '1.3.3.RELEASE'
+        mybatisSpringVersion = '1.0.1'
     }
     repositories {
         maven {
-            url "${maven_url}"
+            url 'http://maven.solarule.cn/artifactory/libs-release'
         }
     }
     dependencies {
@@ -14,24 +15,26 @@ buildscript {
 }
 
 apply plugin: 'java'
-apply plugin: 'org.springframework.boot'
+apply plugin: 'spring-boot'
 
 jar {
     baseName = 'dataAcquisition'
     version = '0.0.1-SNAPSHOT'
 }
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 repositories {
     maven {
-        url "${maven_url}"
+        url 'http://maven.solarule.cn/artifactory/libs-release'
     }
 }
 
+
 dependencies {
-    compile("org.springframework.boot:spring-boot-starter-web")
-    compile("org.thymeleaf:thymeleaf-spring4")
-    compile("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect")
-    compile('mysql:mysql-connector-java:5.1.38')
+    compile('org.springframework.boot:spring-boot-starter')
+
+    testCompile('org.springframework.boot:spring-boot-starter-test')
 }
 
 task wrapper(type: Wrapper) {
