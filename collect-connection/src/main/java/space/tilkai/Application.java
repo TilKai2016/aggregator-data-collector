@@ -1,14 +1,20 @@
 package space.tilkai;
 
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import space.tilkai.aggregator.ConsoleServer;
 
 /**
- * Created by tilkai on 2017/6/21.
+ * @author tilkai
  */
 @SpringBootApplication
 public class Application {
 
     public static void main(String[] args) {
+
+        SpringApplication.run(Application.class);
+
+        new ConsoleServer().start();
 
     }
 }

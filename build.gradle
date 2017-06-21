@@ -10,7 +10,7 @@ buildscript {
     }
     repositories {
         maven {
-            url 'http://maven.solarule.cn/artifactory/libs-release'
+            url "${maven_url}"
         }
     }
     dependencies {
@@ -27,7 +27,7 @@ allprojects {
 
     repositories {
         maven {
-            url 'http://maven.solarule.cn/artifactory/libs-release'
+            url "${maven_url}"
         }
     }
 }
