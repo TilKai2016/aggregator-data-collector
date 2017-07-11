@@ -11,7 +11,15 @@ public interface ServerEventListener {
 
     void connectionIndication(Connection connection);
 
+    /**
+     * invoker this method when serverSocket.accept() occur IOException.
+     * @param e
+     */
     void serverStoppedListeningIndication(IOException e);
 
+    /**
+     * invoker this method when create a instance of connection is fault.
+     * @param e
+     */
     void connectionAttemptFailed(IOException e);
 }

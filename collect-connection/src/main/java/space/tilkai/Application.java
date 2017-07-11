@@ -2,7 +2,6 @@ package space.tilkai;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import space.tilkai.aggregator.ConsoleServer;
 
 /**
  * @author tilkai

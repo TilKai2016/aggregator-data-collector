@@ -21,13 +21,10 @@ public class Server {
     private final ConnectionSettings settings;
 
     /**
-     * Inner class {@code Builder} only can be used to create a Server instance(by InetAddress, port, backlog)
+     * Inner class {@code Server.Builder} used to create a instance of Server.
      */
-    private class Builder {
-
-        // TODO: 2017/6/21 whether or not to create a interface. For Interface Oriented Design.
-
-        private ConnectionSettings settings = new ConnectionSettings();
+    public static class Builder extends CommonBuilder<Builder> {
+        // TODO: 2017/6/21 whether or not to extends a basic class.
 
         private ServerSocketFactory serverSocketFactory = ServerSocketFactory.getDefault();
         private int port = 9070;
@@ -92,8 +89,8 @@ public class Server {
         }
 
         /**
-         * by default, you can direct use this structure.
-         * or you can invoker setter method, to meet your custom demand.(every setting invoker will return a Builder instance.)
+         * by default, you can direct use this method.
+         * or you can invoker setter method first, to meet your custom demand.
          * @return
          */
         public Server build() {
@@ -115,5 +112,10 @@ public class Server {
         serverThread = new ServerThread(serverSocketFactory.createServerSocket(port, backlog, inetAddress),
                 settings, maxConnections, listener);
         serverThread.start();
+    }
+
+    public void stop() {
+        serverThread.stopServer();
+        serverThread = null;
     }
 }

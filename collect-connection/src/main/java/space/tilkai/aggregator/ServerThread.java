@@ -20,6 +20,9 @@ public class ServerThread extends Thread {
     private final int maxConnections;
     private final ServerEventListener serverEventListener;
 
+    private boolean stopServer = false;
+    private int numConnections = 0;
+
     public ServerThread(ServerSocket serverSocket, ConnectionSettings settings,
                         int maxConnections, ServerEventListener listener) {
         this.serverSocket = serverSocket;
@@ -42,7 +45,15 @@ public class ServerThread extends Thread {
         public void run() {
 
             Connection serverConnection;
-            serverConnection = new Connection(socket, serverThread, settings);
+            try {
+                serverConnection = new Connection(socket, serverThread, settings);
+            } catch (IOException e) {
+                synchronized (ServerThread.this) {
+                    numConnections--;
+                }
+                serverEventListener.connectionAttemptFailed(e); // e.printStackTrace();
+                return;
+            }
 
             serverEventListener.connectionIndication(serverConnection);
         }
@@ -50,21 +61,60 @@ public class ServerThread extends Thread {
 
     @Override
     public void run() {
-        ExecutorService executorService = Executors.newCachedThreadPool();
+        ExecutorService executor = Executors.newCachedThreadPool();
 
-        Socket clientSocket = null;
+        try {
+            Socket clientSocket = null;
 
-        while (true) {
+            while (true) {
+                try {
+                    clientSocket = serverSocket.accept();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    if (stopServer == false) {
+                        serverEventListener.serverStoppedListeningIndication(e);
+                    }
+                    return;
+                }
+
+                boolean startConnection = false;
+
+                synchronized (this) {
+                    if (numConnections < maxConnections) {
+                        numConnections++;
+                        startConnection = true;
+                    }
+                }
+                // TODO: 2017/6/21 连接数判断，超出处理
+
+                if (startConnection) {
+                    ConnectionHandler connectionHandler = new ConnectionHandler(clientSocket, this);
+                    executor.execute(connectionHandler);
+                }else {
+                    serverEventListener.connectionAttemptFailed(new IOException("connection numbers is overflow maxCommections number..."));
+                }
+            }
+
+        } finally {
+            executor.shutdown();
+        }
+    }
+
+    void connectionClosedSignal() {
+        // TODO: 2017/6/30 what`s this.
+        synchronized (this) {
+            numConnections--;
+        }
+    }
+
+    void stopServer() {
+        stopServer = true;
+        if (serverSocket.isBound()) {
             try {
-                clientSocket = serverSocket.accept();
+                serverSocket.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-            // TODO: 2017/6/21 连接数判断，超出处理
-
-            ConnectionHandler connectionHandler = new ConnectionHandler(clientSocket, this);
-            executorService.execute(connectionHandler);
         }
     }
 }
