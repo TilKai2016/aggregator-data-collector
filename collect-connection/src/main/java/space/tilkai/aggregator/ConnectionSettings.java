@@ -5,14 +5,16 @@ package space.tilkai.aggregator;
  */
 public class ConnectionSettings {
 
-    private int messageFragmentTimeout = 500000;
+    private int messageFragmentTimeout = 5000;
 
     // the maximum time in ms that no acknowledgement has been received
-    public int maxTimeNoAckReceived = 15000000;
+    public int maxTimeNoAckReceived = 15000;
     // the maximum time in ms before confirming received messages that have not yet been acknowledged
-    public int maxTimeNoAckSent = 100000;
+    public int maxTimeNoAckSent = 10000;
     // the maximum time in ms that the connection may be idle before sending a test frame
-    public int maxIdleTime = 200000;
+    public int maxIdleTime = 20000;
+
+    public int maxUnconfirmedIPdusReceived = 8;
 
 
 
@@ -21,6 +23,12 @@ public class ConnectionSettings {
         ConnectionSettings settings = new ConnectionSettings();
 
         settings.messageFragmentTimeout = messageFragmentTimeout;
+
+        settings.maxTimeNoAckReceived = maxTimeNoAckReceived;
+        settings.maxTimeNoAckSent = maxTimeNoAckSent;
+        settings.maxIdleTime = maxIdleTime;
+
+        settings.maxUnconfirmedIPdusReceived = maxUnconfirmedIPdusReceived;
 
         return settings;
     }

@@ -6,6 +6,7 @@ import space.tilkai.iaggregator.ConnectionEventListener;
 import space.tilkai.iaggregator.ServerEventListener;
 
 import java.io.IOException;
+import java.util.concurrent.TimeoutException;
 
 /**
  * ConsoleServer used to invoker Connection class by connectionIndication method.
@@ -29,7 +30,7 @@ public class ConsoleServer {
                 this.connectionId = connectionId;
             }
             /**
-             * By used this Method you can process input data stream.
+             * Used this Method to process data.
              */
             @Override
             public void newASdu() {
@@ -38,7 +39,7 @@ public class ConsoleServer {
 
             @Override
             public void connectionClosed(IOException e) {
-
+                System.out.println("Connection (" + connectionId + ") was closed. " + e.getMessage());
             }
         }
 
@@ -46,17 +47,27 @@ public class ConsoleServer {
         public void connectionIndication(Connection connection) {
 
             int thisConnectionId = connectionIdCounter++;
-            // TODO: 2017/6/21 connection'num++, used to compare with the connection pool max count.
 
-            // TODO: 2017/6/21 invoker connection.waitForStartDT()
-            connection.waitForStartDT(new ConnectionListener(connection, thisConnectionId), 50000);
+            System.out.println("A client has connected using TCP/IP. Will listen for a StartDT request. Connection ID: "
+                    + thisConnectionId);
 
-            // TODO: 2017/6/21 write logger
+            try {
+                connection.waitForStartDT(new ConnectionListener(connection, thisConnectionId), 5000);
+            } catch (TimeoutException te) {
+
+                System.out.println("connection.waitForStartDT has a error, connection id is " + thisConnectionId);
+                te.printStackTrace();
+
+            }
+
+            System.out.println(
+                    "Started data transfer on connection (" + thisConnectionId + ") Will listen for incoming commands.");
         }
 
         @Override
         public void serverStoppedListeningIndication(IOException e) {
-
+            System.out.println(
+                    "Server has stopped listening for new connections : \"" + e.getMessage() + "\". Will quit.");
         }
 
         /**
@@ -66,8 +77,7 @@ public class ConsoleServer {
         @Override
         public void connectionAttemptFailed(IOException e) {
 
-            // TODO: 2017/6/30 log4j
-            System.err.println("...");
+            System.out.println("Connection attempt failed: " + e.getMessage());
 
         }
     }

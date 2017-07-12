@@ -70,10 +70,13 @@ public class ServerThread extends Thread {
                 try {
                     clientSocket = serverSocket.accept();
                 } catch (IOException e) {
-                    e.printStackTrace();
+
                     if (stopServer == false) {
                         serverEventListener.serverStoppedListeningIndication(e);
                     }
+
+                    e.printStackTrace();
+
                     return;
                 }
 
@@ -85,7 +88,6 @@ public class ServerThread extends Thread {
                         startConnection = true;
                     }
                 }
-                // TODO: 2017/6/21 连接数判断，超出处理
 
                 if (startConnection) {
                     ConnectionHandler connectionHandler = new ConnectionHandler(clientSocket, this);

@@ -5,10 +5,7 @@ import space.tilkai.iaggregator.ConnectionEventListener;
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * @author tilkai
@@ -30,7 +27,9 @@ public class Connection {
 
     private final ScheduledExecutorService maxIdleTimeTimer = Executors.newSingleThreadScheduledExecutor();
     private ScheduledFuture<?> maxIdleTimeTimerFuture = null;
-    private boolean DataTransferStarted = false;
+    private boolean dataTransferStarted = false;
+
+    private boolean closed = false;
 
     // TODO: 2017/6/30 what`s todu .
     /**
@@ -63,6 +62,10 @@ public class Connection {
         this.settings = settings;
         this.serverThread = serverThread;
 
+        if (serverThread != null) {
+            startdtactSignal = new CountDownLatch(1);
+        }
+
         ConnectionReader connectionReader = new ConnectionReader();
         connectionReader.start();
 
@@ -89,12 +92,18 @@ public class Connection {
 
                             parseData(parseStr);
                         }
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
             } catch (SocketException e) {
                 e.printStackTrace();
+            } finally {
+                synchronized (Connection.this) {
+                    if (closed == false) {
+                        close();
+                    }
+                }
             }
         }
     }
@@ -124,7 +133,7 @@ public class Connection {
      * @param listener The listener tobe notice while ASdu arrived.
      * @param timeout
      */
-    public void waitForStartDT(ConnectionEventListener listener, int timeout) {
+    public void waitForStartDT(ConnectionEventListener listener, int timeout) throws TimeoutException {
 
         if (timeout == 0) {
             try {
@@ -141,6 +150,7 @@ public class Connection {
             }
             if (!success) {
                 // TODO: 2017/7/3 throw...
+                throw new TimeoutException();
             }
         } else {
             throw new IllegalArgumentException("Error : Timeout may not be negative.");
@@ -148,7 +158,7 @@ public class Connection {
 
         synchronized (this) {
             this.aSduListener = listener;
-            DataTransferStarted = true;
+            dataTransferStarted = true;
         }
 
 //        resetMaxIdleTimeTimer();
@@ -175,5 +185,25 @@ public class Connection {
 
     private void scheduleMaxTimeNoTestConReceivedFuture() {
 
+    }
+
+    public synchronized void close() {
+        if (!closed) {
+            closed = true;
+            dataTransferStarted = false;
+            try {
+                os.close();
+            } catch (Exception e) {
+
+            }
+            try {
+                is.close();
+            } catch (Exception e) {
+
+            }
+            if (serverThread != null) {
+                serverThread.connectionClosedSignal();
+            }
+        }
     }
 }

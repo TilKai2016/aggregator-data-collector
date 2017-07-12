@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 
 /**
+ * The instance of server used to start listing for connections
  * @author tilkai
  */
 public class Server {
@@ -14,10 +15,11 @@ public class Server {
     private ServerThread serverThread;
 
     private final ServerSocketFactory serverSocketFactory;
-    private final int maxConnections;
     private final int port;
     private final InetAddress inetAddress;
     private final int backlog;
+    private final int maxConnections;
+
     private final ConnectionSettings settings;
 
     /**
@@ -27,7 +29,7 @@ public class Server {
         // TODO: 2017/6/21 whether or not to extends a basic class.
 
         private ServerSocketFactory serverSocketFactory = ServerSocketFactory.getDefault();
-        private int port = 9070;
+        private int port = 9090;
         private InetAddress inetAddress;
         private int backlog = 0;
         private int maxConnections = 100;
